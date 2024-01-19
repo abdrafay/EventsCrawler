@@ -31,7 +31,7 @@ app.use(express.json());
 //     }
 // });
 
-app.get("/api/get-leagues", async (req: Request, res: Response) => {
+app.post("/api/get-leagues", async (req: Request, res: Response) => {
   const data: {
     url: string;
     topic: string;
@@ -52,7 +52,7 @@ app.get("/api/get-leagues", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/api/get-teams", async (req: Request, res: Response) => {
+app.post("/api/get-teams", async (req: Request, res: Response) => {
   const data: {
     league: League;
     url: string;
@@ -71,12 +71,13 @@ app.get("/api/get-teams", async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/get-team-events', async (req: Request, res: Response) => {
+app.post('/api/get-team-events', async (req: Request, res: Response) => {
     const data: {
         url: string;
         topic: string;
         teamUrl: string;
     } = req.body;
+    console.log(req.body, 'req.body')
     const parser = new Parser(data.url, data.topic);
     try {
         const events = await parser.getEventsBasedOnTeam(data.teamUrl);
