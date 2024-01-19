@@ -1,11 +1,6 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+/* eslint-disable @next/next/no-img-element */
+
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { Heart } from "lucide-react";
 
