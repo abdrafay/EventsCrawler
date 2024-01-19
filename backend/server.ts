@@ -69,6 +69,25 @@ app.get('/api/get-teams', async (req: Request, res: Response) => {
     }
 })
 
+app.get('/api/get-team-events', async (req: Request, res: Response) => {
+    const data: {
+        url: string;
+        topic: string;
+        teamUrl: string;
+    } = req.body;
+    const parser = new Parser(data.url, data.topic);
+    try {
+        const events = await parser.getEventsBasedOnTeam(data.teamUrl);
+        res.send({
+            events,
+        });
+    } catch (error) {
+        res.send({
+            events: [],
+        });
+    }
+})
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
