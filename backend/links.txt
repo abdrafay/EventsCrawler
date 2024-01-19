@@ -9366,3 +9366,7 @@ https://www.espn.in/mens-college-basketball/team/schedule/_/id/2261
 https://www.espn.in/mens-college-basketball/team/roster/_/id/2261
 https://www.espn.in/mens-college-basketball/team/stats/_/id/2275
 https://www.espn.in/mens-college-basketball/team/schedule/_/id/2275
+https://www.espn.in/mens-college-basketball/team/roster/_/id/2275
+https://www.espn.in/mens-college-basketball/team/stats/_/id/2405
+https://www.espn.in/mens-college-basketball/team/schedule/_/id/2405
+https://www.espn.in/mens-college-basketball/team/roster/_/id/2405
