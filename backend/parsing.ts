@@ -1,11 +1,12 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-import { Event } from './interfaces';
+import { Event, League, Team } from './interfaces';
 
 class Parser {
     // get url in constructor
-    constructor(private url: string) {
-        this.url = url;
+    constructor(private sourceURL: string, private topic: string) {
+        this.sourceURL = sourceURL;
+        this.topic = topic;
     }
     private async getHtml(url: string): Promise<string> {
         try {
@@ -17,8 +18,65 @@ class Parser {
         }
     }
 
+    public async getLeagues(): Promise<League[]> {
+        try {
+            const html = await this.getHtml(`${this.sourceURL}/${this.topic}/teams`);
+            const $ = cheerio.load(html);
+            const leagues: League[] = [];
+            const el = $('.dropdown__select');
+            el.find('option').each((i, option) => {
+                let name = $(option).text();
+                let url = $(option).attr('data-url');
+                if (url) {
+                    url = `${this.sourceURL}${url}`;
+                }
+                leagues.push({
+                    name,
+                    url: url ? url : '',
+                });
+            });
+            return leagues;
+        } catch (error) {
+            console.error(`Error in getLeagues: ${error}`);
+            throw error; // Re-throw the error to indicate failure
+        }
+    }
+
+    public async getTeams(league: League): Promise<Team[]> {
+        // get the leagues
+        try {
+            
+            
+            // const leagues = await this.getLeagues();
+            const teams: Team[] = [];
+            const html = await this.getHtml(league.url);
+            const $ = cheerio.load(html);
+            const el = $('.ContentList__Item');
+            el.each((i, item) => {
+                let name = $(item).find('h2').text();
+                let url = $(item).find('a').eq(0).attr('href');
+                let image = $(item).find('a').eq(0).find('img.Image.Logo.Logo__lg').attr('src')
+                console.log(image, 'image')
+                if (url) {
+                    url = `${this.sourceURL}${url}`;
+                }
+
+                teams.push({
+                    leagueName: league.name,
+                    name,
+                    url: url ? url : '',
+                    image: image ? image : '',
+                });
+            });
+            return teams;
+        } catch (error) {
+            console.error(`Error in getTeams: ${error}`);
+            throw error; // Re-throw the error to indicate failure
+        }
+    }
+
     public async getEvents(): Promise<Event[]> {
-        const html = await this.getHtml(this.url);
+        const html = await this.getHtml(this.sourceURL);
         const $ = cheerio.load(html);
         let res = {
             EventName: '',
@@ -65,4 +123,20 @@ class Parser {
 
 }
 export default Parser;
+
+
+// const parser = new Parser('https://www.espn.in', 'football');
+// // parser.getTeams().then((res) => {
+// //     console.log(res);
+// // })
+// let leagues: League[] = []
+// parser.getLeagues().then((res) => {
+//     leagues = res;
+//     // console.log(leagues);
+//     parser.getTeams(leagues[0]).then((res) => {
+//         console.log(res);
+//     })
+// })
+
+
 

@@ -4,3 +4,15 @@ export interface Event {
     location: string;
     countries: string[];
 }
+
+export interface Team {
+    leagueName: string;
+    name: string;
+    url: string;
+    image: string;
+}
+
+export interface League {
+    name: string;
+    url: string;
+}
