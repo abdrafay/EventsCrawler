@@ -49,7 +49,7 @@ class Parser {
             const teams: Team[] = [];
             const html = await this.getHtml(league.url);
             const $ = cheerio.load(html);
-            const el = $('.ContentList__Item');
+            const el = $('.TeamsWrapper .ContentList__Item');
             el.each((i, item) => {
                 let name = $(item).find('h2').text();
                 let url = $(item).find('a').eq(0).attr('href');
@@ -154,10 +154,10 @@ class Parser {
 export default Parser;
 
 
-const parser = new Parser('https://www.espn.in', 'football');
-parser.getEventsBasedOnTeam('https://www.espn.in/football/team/_/id/382/Manchester-City/').then((res) => {
-    console.log(res);
-})
+// const parser = new Parser('https://www.espn.in', 'football');
+// parser.getEventsBasedOnTeam('https://www.espn.in/football/team/_/id/382/Manchester-City/').then((res) => {
+//     console.log(res);
+// })
 // // parser.getTeams().then((res) => {
 // //     console.log(res);
 // // })
