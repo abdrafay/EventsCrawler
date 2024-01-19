@@ -45,8 +45,6 @@ class Parser {
     public async getTeams(league: League): Promise<Team[]> {
         // get the leagues
         try {
-            
-            
             // const leagues = await this.getLeagues();
             const teams: Team[] = [];
             const html = await this.getHtml(league.url);
@@ -75,6 +73,39 @@ class Parser {
         }
     }
 
+    public async getEventsBasedOnTeam(url: string): Promise<Event[]> {
+        const html = await this.getHtml(url);
+        const $ = cheerio.load(html);
+        let events: Event[] = [];
+
+        for (const item of $('.Schedule').find('.Schedule__Game')) {
+            let link = $(item).attr('href');
+            let team = {
+                team1: $(item).find('.Schedule__Competitor').find('.truncate').eq(0).text(),
+                team2: $(item).find('.Schedule__Competitor').find('.truncate').eq(1).text()
+            };
+            let date = $(item).find('.Schedule__Meta').eq(0).find('.Schedule__Meta__Time').eq(0).text();
+            let time = $(item).find('.Schedule__Meta').eq(0).find('.Schedule__Meta__Time').eq(1).text();
+            let location = '';
+            let stadium = '';
+            if (link) {
+                const res = await this.getHtml(link);
+                let $1 = cheerio.load(res);
+                stadium = $1('.GameInfo').find('.GameInfo__Location__Name--noImg').text();
+                location = $1('.GameInfo').find('.Location__Text').text();
+                events.push({
+                    date,
+                    time,
+                    location: location ? location : '',
+                    stadium: stadium ? stadium : '',
+                    countries: [team.team1, team.team2],
+                });
+            }
+        }
+    
+        return events;
+    }
+
     public async getEvents(): Promise<Event[]> {
         const html = await this.getHtml(this.sourceURL);
         const $ = cheerio.load(html);
@@ -84,15 +115,11 @@ class Parser {
         }
 
         const events: Event[] = [];
-        // get element containing these classes
-        //  Wrapper Card__Content overflow-visible
         const el = $('.page-container');
-        // use el.find to get the elements inside
         res.EventName = el.find('.headline__h1.dib').text();
         el.find('.ResponsiveTable').each((i, table) => {
             let date = $(table).find('.Table__Title').text();
             let header = $(table).find('thead th')
-            // loop through header to check if time is available or result
             let column = ''
             header.each((i, th) => {
                 let text = $(th).find('div').text()
@@ -111,10 +138,12 @@ class Parser {
                 time = $(rows).eq(2).find('a').text()
             }
             let location = rows.eq(4).find('div').text()
+            let stadium = ''
             events.push({
                 date,
                 time,
                 location,
+                stadium,
                 countries: [matchTeams1.text(), matchTeams2.text()]
             })
         })
@@ -125,7 +154,10 @@ class Parser {
 export default Parser;
 
 
-// const parser = new Parser('https://www.espn.in', 'football');
+const parser = new Parser('https://www.espn.in', 'football');
+parser.getEventsBasedOnTeam('https://www.espn.in/football/team/_/id/382/Manchester-City/').then((res) => {
+    console.log(res);
+})
 // // parser.getTeams().then((res) => {
 // //     console.log(res);
 // // })
