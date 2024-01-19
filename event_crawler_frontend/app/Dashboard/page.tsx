@@ -2,7 +2,7 @@
 import OutputCard from "@/components/Dashboard/OutputCard";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -12,42 +12,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import axios from "axios";
+import { request } from "http";
+
+type teams = {
+  name: string;
+  image: string;
+};
+
+type leagues = {
+  name: string;
+};
 
 const Page = () => {
-  const [url, setUrl] = useState("");
+  // const [url, setUrl] = useState("");
   // const [data, setData] = useState([]);
   const [sports, setSports] = useState(""); // Football
-  const [leaguesData, setLeaguesData] = useState([]); // [Laliga, Premier League]
+  const [leaguesData, setLeaguesData] = useState<leagues[]>([]); // [Laliga, Premier League]
   const [leagues, setLeagues] = useState(""); // Laliga
-  const [teams, setTeams] = useState([
-    {
-      name: "Syria",
-      image: "image",
-    },
-    {
-      name: "Iran",
-      image: "image",
-    },
-    {
-      name: "Australia",
-      image: "image",
-    },
-    {
-      name: "Japan",
-      image: "image",
-    },
-    {
-      name: "Argetina",
-      image: "image",
-    },
-  ]); // [Real Madrid, Barcelona, ...]
+  const [teams, setTeams] = useState<teams[]>([]); // [Real Madrid, Barcelona]
 
   const [loadingLeagues, setLoadingLeagues] = useState(false);
   const [loadingTeams, setLoadingTeams] = useState(false);
 
-  const crawlUrl = () => {
-    console.log("crawlUrl");
-  };
+  // const crawlUrl = () => {
+  //   console.log("crawlUrl");
+  // };
+
+  useEffect(() => {
+    setLoadingLeagues(true);
+    let data = {
+      url: "https://www.espn.in",
+      topic: "football",
+    };
+    const res = axios
+      .get("http://localhost:5000/api/get-leagues", data)
+      .then((res) => {
+        setLeaguesData(res.data);
+        setLoadingLeagues(false);
+      });
+  }, [sports]);
+
   return (
     <div className="flex flex-col w-full space-y-4 p-5">
       {/* <div className="flex w-full max-w-sm items-center space-x-2">
@@ -57,7 +62,7 @@ const Page = () => {
       {/* Output */}
       <div className="flex flex-col space-y-2">
         <div>
-          <Select>
+          <Select value={sports} onValueChange={setSports}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select a Sport" />
             </SelectTrigger>
@@ -74,7 +79,7 @@ const Page = () => {
         <div>
           {loadingLeagues && <div>Loading...</div>}
           {leagues.length === 0 ? null : (
-            <Select>
+            <Select value={leagues} onValueChange={setLeagues}>
               <SelectTrigger className="w-[230px]">
                 <SelectValue placeholder="Select a league" />
               </SelectTrigger>
