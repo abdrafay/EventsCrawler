@@ -1,12 +1,14 @@
-import express, { Request, Response } from 'express';
-import Parser from './parsing';
-import { Event, League } from './interfaces';
+import express, { Request, Response } from "express";
+import Parser from "./parsing";
+import { Event, League } from "./interfaces";
+import cors from "cors";
 
 const app = express();
 const port = 5000;
 
-app.use(express.json());
+app.use(cors());
 
+app.use(express.json());
 
 // app.get('/api/getData', async (req: Request, res: Response) => {
 //     // Handle the POST request here
@@ -29,45 +31,45 @@ app.use(express.json());
 //     }
 // });
 
-app.get('/api/get-leagues', async (req: Request, res: Response) => {
-    const data: {
-        url: string;
-        topic: string;
-    } = req.body;
-    // console.log(req.body, 'req.body')
+app.get("/api/get-leagues", async (req: Request, res: Response) => {
+  const data: {
+    url: string;
+    topic: string;
+  } = req.body;
+  console.log(req.body, "req.body");
 
-    console.log(data, 'data')
-    const parser = new Parser(data.url, data.topic);
-    try {
-        const leagues = await parser.getLeagues();
-        res.send({
-            leagues,
-        });
-    } catch (error) {
-        res.send({
-            leagues: [],
-        });
-    }
-})
+  console.log(data, "data");
+  const parser = new Parser(data.url, data.topic);
+  try {
+    const leagues = await parser.getLeagues();
+    res.send({
+      leagues,
+    });
+  } catch (error) {
+    res.send({
+      leagues: [],
+    });
+  }
+});
 
-app.get('/api/get-teams', async (req: Request, res: Response) => {
-    const data: {
-        league: League;
-        url: string;
-        topic: string;
-    } = req.body;
-    const parser = new Parser(data.url, data.topic);
-    try {
-        const teams = await parser.getTeams(data.league);
-        res.send({
-            teams,
-        });
-    } catch (error) {
-        res.send({
-            teams: [],
-        });
-    }
-})
+app.get("/api/get-teams", async (req: Request, res: Response) => {
+  const data: {
+    league: League;
+    url: string;
+    topic: string;
+  } = req.body;
+  const parser = new Parser(data.url, data.topic);
+  try {
+    const teams = await parser.getTeams(data.league);
+    res.send({
+      teams,
+    });
+  } catch (error) {
+    res.send({
+      teams: [],
+    });
+  }
+});
 
 app.get('/api/get-team-events', async (req: Request, res: Response) => {
     const data: {
@@ -89,5 +91,5 @@ app.get('/api/get-team-events', async (req: Request, res: Response) => {
 })
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });

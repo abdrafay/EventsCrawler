@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { Trash2 } from "lucide-react";
