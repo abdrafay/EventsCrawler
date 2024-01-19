@@ -4,12 +4,13 @@ import { URL } from 'url';
 import fs from 'fs';
 
 class Crawler {
-
     private visited: Set<string>;
+    private queue: string[];
 
     constructor(private url: string) {
         this.url = url;
         this.visited = new Set();
+        this.queue = [this.url];
     }
 
     private isSameDomain(link: string): boolean {
@@ -24,11 +25,16 @@ class Crawler {
     }
 
     private normalizeUrl(link: string): string {
-        if (!link.includes('http://') && !link.includes('https://')) {
+        try {
             const baseUrl = new URL(this.url);
-            return new URL(link, baseUrl).href;
+            const resolvedUrl = new URL(link, baseUrl).href;
+
+            // Remove trailing slash if it exists
+            return resolvedUrl.endsWith('/') ? resolvedUrl.slice(0, -1) : resolvedUrl;
+        } catch (error) {
+            console.error(`Error parsing URL ${link}: ${error}`);
+            return '';
         }
-        return link;
     }
 
     private async getHtml(newUrl: string = this.url): Promise<string> {
@@ -41,14 +47,24 @@ class Crawler {
         }
     }
 
-    public async getLinks() {
-        const queue: string[] = [this.url];
+    private addToQueue(link: string): void {
+        if (!this.visited.has(link) && !this.queue.includes(link)) {
+            this.queue.push(link);
+        }
+    }
 
-        while (queue.length > 0) {
-            const currentUrl = queue.shift() as string;
+    public async getLinks() {
+        while (this.queue.length > 0) {
+            const currentUrl = this.queue.shift() as string;
 
             if (!this.visited.has(currentUrl)) {
                 this.visited.add(currentUrl);
+                // save this link in a file in a new line
+                fs.appendFile('links.txt', currentUrl + '\n', (err) => {
+                    if (err) throw err;
+                    console.log('The file has been saved!');
+                });
+
                 const html = await this.getHtml(currentUrl);
 
                 if (html.length > 0) {
@@ -60,7 +76,7 @@ class Crawler {
                         if (href) {
                             const normalizedLink = this.normalizeUrl(href);
                             if (normalizedLink.length !== 0 && this.isSameDomain(normalizedLink) && !normalizedLink.includes('/api/')) {
-                                queue.push(normalizedLink);
+                                this.addToQueue(normalizedLink);
                             }
                         }
                     });
@@ -80,12 +96,6 @@ const getData = async () => {
     try {
         await AllLinks.getLinks();
         console.log(AllLinks.getVisitedLinks());
-        // save these all links in a file
-        fs.writeFile('links.txt', Array.from(AllLinks.getVisitedLinks()).join('\n'), (err) => {
-            if (err) throw err;
-            console.log('The file has been saved!');
-        });
-
     } catch (err) {
         console.log(err);
     }
