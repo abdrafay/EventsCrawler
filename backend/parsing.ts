@@ -1,12 +1,6 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-
-interface Event {
-    date: string;
-    time: string;
-    location: string;
-    countries: string[];
-}
+import { Event } from './interfaces';
 
 class Parser {
     // get url in constructor
@@ -70,6 +64,5 @@ class Parser {
     }
 
 }
+export default Parser;
 
-const parser = new Parser('https://www.espn.in/football/schedule/_/league/afc.asian.cup');
-parser.getEvents().then((events) => console.log(events));
